@@ -7,17 +7,19 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+
 func TestTransferTx(t *testing.T) {
 	store := NewStore(testDB)
-
+	
 	account1 := createRandomAccount(t)
 	account2 := createRandomAccount(t)
 
 	n := 5
 	amount := int64(1000)
-
+	
 	errs := make(chan error)
 	results := make(chan TransferTxResult)
+	existed := make(map[int]bool)
 
 	for i := 0; i < n; i++ {
 		go func() {
@@ -49,7 +51,7 @@ func TestTransferTx(t *testing.T) {
 
 		_, err = store.GetTransfer(context.Background(), transfer.ID)
 		require.NoError(t, err)
-
+	
 		fromEntry := result.FromEntry
 		require.NotEmpty(t, fromEntry)
 		require.NotZero(t, fromEntry.ID)
@@ -88,8 +90,17 @@ func TestTransferTx(t *testing.T) {
 
 		k := int(diff1 / amount)
 		require.True(t, k >= 1 && k <= n)
-
-
+		require.NotContains(t, existed, k)
+		existed[k] = true
 	}
+
+	updatedAccount1, err := testQueries.GetAccount(context.Background(), account1.ID)
+	require.NoError(t, err)
+
+	updatedAccount2, err := testQueries.GetAccount(context.Background(), account2.ID)
+	require.NoError(t, err)
+
+	require.Equal(t, account1.Balance-(int64(n)*amount), updatedAccount1.Balance)
+	require.Equal(t, account2.Balance+(int64(n)*amount), updatedAccount2.Balance)
 	
 }
