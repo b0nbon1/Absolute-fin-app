@@ -1,9 +1,9 @@
 postgres:
 	docker run --name db -e POSTGRES_USER=root -e POSTGRES_PASSWORD=1234567890 -d postgres
 createdb:
-	docker exec -it postgresdb createdb -U root simple_bank
+	docker exec -it db createdb -U root simple_bank
 dropdb:
-	docker exec -it postgresdb dropdb -U root simple_bank
+	docker exec -it db dropdb -U root simple_bank
 migrateup:
 	migrate -path db/migration -database "postgresql://root:1234567890@localhost:5432/simple_bank?sslmode=disable" -verbose up
 migratedown:
