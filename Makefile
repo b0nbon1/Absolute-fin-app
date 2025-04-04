@@ -10,9 +10,9 @@ migratedown:
 	migrate -path db/migration -database "postgresql://root:1234567890@localhost:5432/simple_bank?sslmode=disable" -verbose down
 sqlc:
 	sqlc generate
-
 test:
 	go test -v -cover ./...
+server:
+	go run main.go
 
-
-.PHONY: createdb postgres dropdb migrate sqlc test
+.PHONY: createdb postgres dropdb migrate sqlc test server
